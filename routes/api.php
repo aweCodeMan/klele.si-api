@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +15,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get('verify', [UserController::class, 'verify'])->name('verification.verify');
+
+Route::post('forgot-password', [UserController::class, 'forgotPassword'])->name('forgot-password')->middleware('guest');
+Route::post('password-reset', [UserController::class, 'resetPassword'])->name('password.reset')->middleware('guest');
+
+
+Route::name('users.')->prefix('users')->group(function () {
+    Route::post('/', [UserController::class, 'register'])->name('register');
+
+    Route::middleware(['auth:api'])->group(function () {
+        Route::post('reverify', [UserController::class, 'reverify'])->name('reverify');
+    });
 });
+
+
+
