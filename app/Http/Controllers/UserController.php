@@ -60,6 +60,11 @@ class UserController extends Controller
         return new UserResource($request->user()->refresh());
     }
 
+    public function show(Request $request)
+    {
+        return new UserResource($request->user());
+    }
+
     public function verify(Request $request)
     {
         if (!$request->hasValidSignature()) {

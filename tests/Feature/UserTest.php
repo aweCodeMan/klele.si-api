@@ -28,6 +28,16 @@ class UserTest extends TestCase
     }
 
     /** @test */
+    public function it_returns_a_user()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'api')->get(route('users.show'))->assertStatus(200);
+
+        $this->assertSame($user->uuid, $response->json('data.uuid'));
+    }
+
+    /** @test */
     public function it_updates_the_user()
     {
         $user = User::factory()->create();

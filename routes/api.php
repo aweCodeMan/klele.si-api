@@ -29,7 +29,7 @@ Route::name('users.')->prefix('users')->group(function () {
         Route::post('reverify', [UserController::class, 'reverify'])->name('reverify');
 
         Route::put('/', [UserController::class, 'update'])->name('update');
-
+        Route::get('show', [UserController::class, 'show'])->name('show');
     });
 });
 
