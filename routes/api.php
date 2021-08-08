@@ -23,9 +23,13 @@ Route::post('password-reset', [UserController::class, 'resetPassword'])->name('p
 
 Route::name('users.')->prefix('users')->group(function () {
     Route::post('/', [UserController::class, 'register'])->name('register');
+    Route::post('/login', [UserController::class, 'login'])->name('login');
 
     Route::middleware(['auth:api'])->group(function () {
         Route::post('reverify', [UserController::class, 'reverify'])->name('reverify');
+
+        Route::put('/', [UserController::class, 'update'])->name('update');
+
     });
 });
 

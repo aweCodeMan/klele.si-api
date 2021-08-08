@@ -5,15 +5,20 @@ namespace App\Http\Controllers;
 use App\Aggregates\UserAggregate;
 use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UserLoginRequest;
 use App\Http\Requests\UserRegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -25,7 +30,34 @@ class UserController extends Controller
             ->register($request->name, $request->surname, $request->email)
             ->persist();
 
-        return new UserResource(User::where('uuid', $uuid)->first());
+        $user = User::where('uuid', $uuid)->first();
+        Auth::login($user);
+
+        return new UserResource($user);
+    }
+
+    public function login(UserLoginRequest $request)
+    {
+        if (Auth::attempt($request->only(['email', 'password']))) {
+            if ($request->hasSession()) {
+                $request->session()->regenerate();
+            }
+
+            return response()->json(['data' => null], 200);
+        }
+
+        throw ValidationException::withMessages([
+            'password' => ['Tole pa ne bo pravo geslo.'],
+        ]);
+    }
+
+    public function update(UpdateUserRequest $request)
+    {
+        UserAggregate::retrieve($request->user()->uuid)
+            ->update($request->name, $request->surname)
+            ->persist();
+
+        return new UserResource($request->user()->refresh());
     }
 
     public function verify(Request $request)

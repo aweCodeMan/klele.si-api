@@ -7,6 +7,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\URL;
@@ -24,6 +25,38 @@ class UserTest extends TestCase
         $response = $this->post(route('users.register'), $data)->assertStatus(200);
 
         $this->assertDatabaseHas(User::class, ['email' => $data['email'], 'name' => $data['name'], 'surname' => $data['surname'], 'full_name' => "{$data['name']} {$data['surname']}"]);
+    }
+
+    /** @test */
+    public function it_updates_the_user()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'api')->put(route('users.update'), ['name' => 'Example', 'surname' => 'Test'])->assertStatus(200);
+
+        $this->assertDatabaseHas(User::class, ['email' => $user->email, 'name' => 'Example', 'surname' => 'Test', 'full_name' => "Example Test"]);
+    }
+
+    /** @test */
+    public function it_logs_in_the_user()
+    {
+        $user = User::factory()->create(['password' => Hash::make('secretSecret')]);
+
+        $response = $this->post(route('users.login'), [
+            'email' => $user->email,
+            'password' => 'secretSecret',
+        ])->assertStatus(200);
+    }
+
+    /** @test */
+    public function it_fails_to_log_in_the_user()
+    {
+        $user = User::factory()->create(['password' => Hash::make('secretSecret')]);
+
+        $response = $this->post(route('users.login'), [
+            'email' => $user->email,
+            'password' => 'randomPasswordNotCorrect',
+        ])->assertStatus(422);
     }
 
     /** @test */
@@ -98,7 +131,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function it_resets_a_password_email()
+    public function it_resets_a_password()
     {
         $user = User::factory()->create();
         $token = Password::createToken($user);
