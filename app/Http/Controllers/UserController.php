@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Testing\Fluent\Concerns\Has;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
@@ -31,6 +32,9 @@ class UserController extends Controller
             ->persist();
 
         $user = User::where('uuid', $uuid)->first();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
         Auth::login($user);
 
         return new UserResource($user);
@@ -43,11 +47,11 @@ class UserController extends Controller
                 $request->session()->regenerate();
             }
 
-            return response()->json(['data' => null], 200);
+            return new UserResource(Auth::user());
         }
 
         throw ValidationException::withMessages([
-            'password' => ['Tole pa ne bo pravo geslo.'],
+            'password' => ['Ni pravo geslo.'],
         ]);
     }
 
