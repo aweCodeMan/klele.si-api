@@ -8,6 +8,7 @@ use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UserLoginRequest;
 use App\Http\Requests\UserRegisterRequest;
+use App\Http\Resources\ProfileResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -15,10 +16,8 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Testing\Fluent\Concerns\Has;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
@@ -37,7 +36,7 @@ class UserController extends Controller
 
         Auth::login($user);
 
-        return new UserResource($user);
+        return new ProfileResource($user);
     }
 
     public function login(UserLoginRequest $request)
@@ -47,7 +46,7 @@ class UserController extends Controller
                 $request->session()->regenerate();
             }
 
-            return new UserResource(Auth::user());
+            return new ProfileResource(Auth::user());
         }
 
         throw ValidationException::withMessages([
@@ -61,12 +60,12 @@ class UserController extends Controller
             ->update($request->name, $request->surname)
             ->persist();
 
-        return new UserResource($request->user()->refresh());
+        return new ProfileResource($request->user()->refresh());
     }
 
     public function show(Request $request)
     {
-        return new UserResource($request->user());
+        return new ProfileResource($request->user());
     }
 
     public function verify(Request $request)
