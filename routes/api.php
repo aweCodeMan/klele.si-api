@@ -30,6 +30,7 @@ Route::name('users.')->prefix('users')->group(function () {
 
         Route::put('/', [UserController::class, 'update'])->name('update');
         Route::get('show', [UserController::class, 'show'])->name('show');
+        Route::post('logout', [UserController::class, 'logout'])->name('logout');
     });
 });
 

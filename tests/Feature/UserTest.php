@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Notifications\ResetPasswordLinkNotification;
+use App\Notifications\VerifyEmailNotification;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -90,7 +92,7 @@ class UserTest extends TestCase
 
         $response = $this->post(route('users.register'), $data)->assertStatus(200);
 
-        Notification::assertSentTo(User::first(), VerifyEmail::class);
+        Notification::assertSentTo(User::first(), VerifyEmailNotification::class);
     }
 
     /** @test */
@@ -111,7 +113,7 @@ class UserTest extends TestCase
             ]
         );
 
-        $response = $this->get($url)->assertStatus(200);
+        $response = $this->get($url)->assertStatus(302);
 
         $this->assertDatabaseMissing(User::class, ['email' => $data['email'], 'email_verified_at' => null]);
     }
@@ -125,7 +127,7 @@ class UserTest extends TestCase
 
         $this->actingAs($user, 'api')->post(route('users.reverify'), [])->assertStatus(200);
 
-        Notification::assertSentTo(User::first(), VerifyEmail::class);
+        Notification::assertSentTo(User::first(), VerifyEmailNotification::class);
     }
 
     /** @test */
@@ -137,7 +139,7 @@ class UserTest extends TestCase
 
         $this->post(route('forgot-password'), ['email' => $user->email])->assertStatus(200);
 
-        Notification::assertSentTo(User::first(), ResetPassword::class);
+        Notification::assertSentTo(User::first(), ResetPasswordLinkNotification::class);
     }
 
     /** @test */

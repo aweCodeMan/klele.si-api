@@ -89,7 +89,7 @@ class UserController extends Controller
             event(new Verified($user));
         }
 
-        return response(['data' => null]);
+        return redirect(env('FRONTEND_URL'). '/profil');
     }
 
     public function reverify(Request $request)
@@ -125,6 +125,19 @@ class UserController extends Controller
         // redirect them back to where they came from with their error message.
         return $response == Password::PASSWORD_RESET
             ? response()->json(['data' => null], 200)
-            : response()->json($response, 400);
+            : throw ValidationException::withMessages([
+                'email' => ['Nismo uspeli resetirati gesla, saj je veljavnost povezave iz emaila potekla.'],
+            ]);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return response()->json();
     }
 }
