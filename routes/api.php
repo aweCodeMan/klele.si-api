@@ -20,6 +20,10 @@ Route::get('verify', [UserController::class, 'verify'])->name('verification.veri
 Route::post('forgot-password', [UserController::class, 'forgotPassword'])->name('forgot-password')->middleware('guest');
 Route::post('password-reset', [UserController::class, 'resetPassword'])->name('password.reset')->middleware('guest');
 
+Route::name('groups.')->prefix('groups')->group(function() {
+    Route::get('/', [\App\Http\Controllers\GroupController::class, 'index'])->name('index');
+});
+
 
 Route::name('users.')->prefix('users')->group(function () {
     Route::post('/', [UserController::class, 'register'])->name('register');
