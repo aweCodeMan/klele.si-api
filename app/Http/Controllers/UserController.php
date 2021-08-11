@@ -34,14 +34,14 @@ class UserController extends Controller
         $user->password = Hash::make($request->password);
         $user->save();
 
-        Auth::login($user);
+        Auth::login($user, true);
 
         return new ProfileResource($user);
     }
 
     public function login(UserLoginRequest $request)
     {
-        if (Auth::attempt($request->only(['email', 'password']))) {
+        if (Auth::attempt($request->only(['email', 'password']), true)) {
             if ($request->hasSession()) {
                 $request->session()->regenerate();
             }

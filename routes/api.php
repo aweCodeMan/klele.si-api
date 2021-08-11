@@ -20,10 +20,19 @@ Route::get('verify', [UserController::class, 'verify'])->name('verification.veri
 Route::post('forgot-password', [UserController::class, 'forgotPassword'])->name('forgot-password')->middleware('guest');
 Route::post('password-reset', [UserController::class, 'resetPassword'])->name('password.reset')->middleware('guest');
 
+Route::get('posts/{slug}', [\App\Http\Controllers\PostController::class, 'show'])->name('posts.show');
+
 Route::name('groups.')->prefix('groups')->group(function() {
     Route::get('/', [\App\Http\Controllers\GroupController::class, 'index'])->name('index');
 });
 
+Route::name('posts.')->prefix('posts')->group(function() {
+    Route::middleware(['auth'])->group(function (){
+        Route::post('/', [\App\Http\Controllers\PostController::class, 'store'])->name('store');
+        Route::put('{uuid}', [\App\Http\Controllers\PostController::class, 'update'])->name('update');
+        Route::delete('{uuid}', [\App\Http\Controllers\PostController::class, 'delete'])->name('delete');
+    });
+});
 
 Route::name('users.')->prefix('users')->group(function () {
     Route::post('/', [UserController::class, 'register'])->name('register');
