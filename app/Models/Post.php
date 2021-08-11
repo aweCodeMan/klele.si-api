@@ -51,4 +51,9 @@ class Post extends Model
     {
         return $this->belongsTo(User::class, 'author_uuid', 'uuid');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'root_uuid', 'uuid')->with(['markdown', 'author'])->withTrashed();
+    }
 }

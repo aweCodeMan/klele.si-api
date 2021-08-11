@@ -6,6 +6,7 @@ use App\Models\Link;
 use App\Models\Markdown;
 use App\Models\Post;
 use App\Services\MarkdownService;
+use App\StorableEvents\CommentCreated;
 use App\StorableEvents\LinkPostCreated;
 use App\StorableEvents\LinkPostDeleted;
 use App\StorableEvents\LinkPostUpdated;
@@ -16,6 +17,10 @@ use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class PostProjector extends Projector
 {
+    public function onCommentCreated(CommentCreated $event){
+        Post::where('uuid', $event->data->root_uuid)->increment('number_of_comments', 1);
+    }
+
     public function onMarkdownPostCreated(MarkdownPostCreated $event)
     {
         Post::create([

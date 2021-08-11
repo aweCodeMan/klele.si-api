@@ -62,7 +62,7 @@ class PostController extends Controller
 
     public function show($slug, Request $request)
     {
-        $post = Post::withTrashed()->with('markdown')->where('slug', $slug)->orWhere('uuid', $slug)->firstOrFail();
+        $post = Post::withTrashed()->with('markdown', 'author', 'comments')->where('slug', $slug)->orWhere('uuid', $slug)->firstOrFail();
 
         return new PostResource($post);
     }
