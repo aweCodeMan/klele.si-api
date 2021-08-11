@@ -17,6 +17,10 @@ class PostResource extends JsonResource
     {
         return [
             'uuid' => $this->uuid,
+            'groupUuid' => $this->group_uuid,
+            'author' => $this->whenLoaded('author', function () {
+                return new AuthorResource($this->author);
+            }),
             'slug' => $this->slug,
             'title' => !$this->deleted_at ? $this->title : Post::TEXT_DELETED,
             'postType' => $this->post_type,

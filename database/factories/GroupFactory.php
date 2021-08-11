@@ -23,7 +23,7 @@ class GroupFactory extends Factory
     public function definition()
     {
         return [
-            'uuid' => Str::orderedUuid(),
+            'uuid' => Str::orderedUuid()->toString(),
             'name' => $this->faker->name,
             'color' => $this->faker->hexColor,
             'slug' => $this->faker->slug,

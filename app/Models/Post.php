@@ -46,4 +46,9 @@ class Post extends Model
     {
         return $this->hasOne(Link::class, 'uuid', 'uuid');
     }
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_uuid', 'uuid');
+    }
 }

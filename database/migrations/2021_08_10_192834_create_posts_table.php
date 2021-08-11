@@ -23,6 +23,8 @@ class CreatePostsTable extends Migration
 
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('created_at');
         });
     }
 

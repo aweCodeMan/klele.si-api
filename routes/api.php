@@ -21,6 +21,7 @@ Route::post('forgot-password', [UserController::class, 'forgotPassword'])->name(
 Route::post('password-reset', [UserController::class, 'resetPassword'])->name('password.reset')->middleware('guest');
 
 Route::get('posts/{slug}', [\App\Http\Controllers\PostController::class, 'show'])->name('posts.show');
+Route::get('feed', [\App\Http\Controllers\FeedController::class, 'index'])->name('feed');
 
 Route::name('groups.')->prefix('groups')->group(function() {
     Route::get('/', [\App\Http\Controllers\GroupController::class, 'index'])->name('index');
