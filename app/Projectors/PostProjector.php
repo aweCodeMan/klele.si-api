@@ -5,6 +5,7 @@ namespace App\Projectors;
 use App\Models\Link;
 use App\Models\Markdown;
 use App\Models\Post;
+use App\Services\MarkdownService;
 use App\StorableEvents\LinkPostCreated;
 use App\StorableEvents\LinkPostDeleted;
 use App\StorableEvents\LinkPostUpdated;
@@ -79,9 +80,6 @@ class PostProjector extends Projector
 
     private function parseMarkdown(string $markdown): string
     {
-        $html = (new \Parsedown())->setSafeMode(true)->text($markdown);
-        $purifier = new \HTMLPurifier(null);
-
-        return $purifier->purify($html);
+        return MarkdownService::parse($markdown);
     }
 }

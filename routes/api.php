@@ -27,6 +27,9 @@ Route::name('groups.')->prefix('groups')->group(function() {
     Route::get('/', [\App\Http\Controllers\GroupController::class, 'index'])->name('index');
 });
 
+Route::post('markdown', [\App\Http\Controllers\MarkdownController::class, 'transform'])->name('markdown')->middleware('auth');
+
+
 Route::name('posts.')->prefix('posts')->group(function() {
     Route::middleware(['auth'])->group(function (){
         Route::post('/', [\App\Http\Controllers\PostController::class, 'store'])->name('store');
