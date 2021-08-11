@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Group;
+use App\Models\Link;
 use App\Models\Markdown;
 use App\Models\Post;
 use App\Models\User;
@@ -35,17 +36,30 @@ class PostFactory extends Factory
 
     public function markdownPost()
     {
-        return $this->state(function (array $attributes){
+        return $this->state(function (array $attributes) {
             Markdown::create([
                 'uuid' => $attributes['uuid'],
                 'html' => $this->faker->randomHtml,
                 'markdown' => $this->faker->paragraphs(6, true),
             ]);
 
-           return [
-               'post_type' => Post::TYPE_MARKDOWN,
-           ] ;
+            return [
+                'post_type' => Post::TYPE_MARKDOWN,
+            ];
         });
+    }
 
+    public function linkPost()
+    {
+        return $this->state(function (array $attributes) {
+            Link::create([
+                'uuid' => $attributes['uuid'],
+                'link' => $this->faker->url,
+            ]);
+
+            return [
+                'post_type' => Post::TYPE_LINK,
+            ];
+        });
     }
 }

@@ -13,6 +13,8 @@ class Post extends Model
     use HasFactory, HasSlug, SoftDeletes;
 
     const TYPE_MARKDOWN = 0;
+    const TYPE_LINK = 1;
+
     const TEXT_DELETED = '[izbrisano]';
 
     protected $primaryKey = 'uuid';
@@ -38,5 +40,10 @@ class Post extends Model
     public function markdown()
     {
         return $this->hasOne(Markdown::class, 'uuid', 'uuid');
+    }
+
+    public function link()
+    {
+        return $this->hasOne(Link::class, 'uuid', 'uuid');
     }
 }

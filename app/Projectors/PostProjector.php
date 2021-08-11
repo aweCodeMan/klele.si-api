@@ -2,8 +2,12 @@
 
 namespace App\Projectors;
 
+use App\Models\Link;
 use App\Models\Markdown;
 use App\Models\Post;
+use App\StorableEvents\LinkPostCreated;
+use App\StorableEvents\LinkPostDeleted;
+use App\StorableEvents\LinkPostUpdated;
 use App\StorableEvents\MarkdownPostCreated;
 use App\StorableEvents\MarkdownPostDeleted;
 use App\StorableEvents\MarkdownPostUpdated;
@@ -28,6 +32,22 @@ class PostProjector extends Projector
         ]);
     }
 
+    public function onLinkPostCreated(LinkPostCreated $event)
+    {
+        Post::create([
+            'uuid' => $event->aggregateRootUuid(),
+            'author_uuid' => $event->data->author_uuid,
+            'group_uuid' => $event->data->group_uuid,
+            'title' => $event->data->title,
+            'post_type' => Post::TYPE_LINK,
+        ]);
+
+        Link::create([
+            'uuid' => $event->aggregateRootUuid(),
+            'link' => $event->data->link,
+        ]);
+    }
+
     public function onMarkdownPostUpdate(MarkdownPostUpdated $event)
     {
         Post::where('uuid', $event->aggregateRootUuid())->update([
@@ -40,7 +60,19 @@ class PostProjector extends Projector
         ]);
     }
 
+    public function onLinkPostUpdate(LinkPostUpdated $event)
+    {
+        Post::where('uuid', $event->aggregateRootUuid())->update([
+            'title' => $event->data->title,
+        ]);
+    }
+
     public function onMarkdownPostDelete(MarkdownPostDeleted $event)
+    {
+        Post::where('uuid', $event->aggregateRootUuid())->delete();
+    }
+
+    public function onLinkPostDelete(LinkPostDeleted $event)
     {
         Post::where('uuid', $event->aggregateRootUuid())->delete();
     }

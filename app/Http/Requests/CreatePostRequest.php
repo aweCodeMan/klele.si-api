@@ -28,6 +28,7 @@ class CreatePostRequest extends FormRequest
             'postType' => ['required', 'in:0,1'],
             'groupUuid' => ['required', 'exists:groups,uuid'],
             'markdown' => ['exclude_unless:postType,0', 'required', 'string'],
+            'link' => ['exclude_unless:postType,1', 'required', 'active_url', 'url'],
         ];
     }
 }

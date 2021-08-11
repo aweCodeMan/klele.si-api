@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Aggregates\LinkPostAggregate;
 use App\Aggregates\MarkdownPostAggregate;
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Requests\UpdatePostRequest;
@@ -16,6 +17,9 @@ class PostController extends Controller
         switch ($request->get('postType')) {
             case Post::TYPE_MARKDOWN:
                 $this->createMarkdownPost($request);
+                break;
+            case Post::TYPE_LINK:
+                $this->createLinkPost($request);
                 break;
         }
     }
@@ -32,6 +36,9 @@ class PostController extends Controller
             case Post::TYPE_MARKDOWN:
                 $this->updateMarkdownPost($post->uuid, $request);
                 break;
+            case Post::TYPE_LINK:
+                $this->updateLinkPost($post->uuid, $request);
+                break;
         }
     }
 
@@ -46,6 +53,9 @@ class PostController extends Controller
         switch ($post->post_type) {
             case Post::TYPE_MARKDOWN:
                 $this->deleteMarkdownPost($uuid);
+                break;
+            case Post::TYPE_LINK:
+                $this->deleteLinkPost($post->uuid);
                 break;
         }
     }
@@ -80,6 +90,35 @@ class PostController extends Controller
     private function deleteMarkdownPost($uuid)
     {
         MarkdownPostAggregate::retrieve($uuid)
+            ->delete()
+            ->persist();
+
+        return $uuid;
+    }
+
+    private function createLinkPost(CreatePostRequest $request)
+    {
+        $uuid = $this->generateUuid();
+
+        LinkPostAggregate::retrieve($uuid)
+            ->create($request->user()->uuid, $request->get('title'), $request->get('groupUuid'), $request->get('link'))
+            ->persist();
+
+        return $uuid;
+    }
+
+    private function updateLinkPost($uuid, UpdatePostRequest $request)
+    {
+        LinkPostAggregate::retrieve($uuid)
+            ->update($request->get('title'))
+            ->persist();
+
+        return $uuid;
+    }
+
+    private function deleteLinkPost($uuid)
+    {
+        LinkPostAggregate::retrieve($uuid)
             ->delete()
             ->persist();
 
