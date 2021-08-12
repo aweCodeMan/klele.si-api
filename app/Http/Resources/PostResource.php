@@ -19,6 +19,7 @@ class PostResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'groupUuid' => $this->group_uuid,
+            'group' => new GroupResource($this->group),
             'author' => $this->whenLoaded('author', function () {
                 return new AuthorResource($this->author);
             }),
@@ -36,6 +37,7 @@ class PostResource extends JsonResource
 
                 return CommentResource::collection($postComments);
             }),
+            'numberOfComments' => $this->number_of_comments,
             'createdAt' => $this->created_at,
             'deletedAt' => $this->deleted_at,
         ];

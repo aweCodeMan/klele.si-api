@@ -11,7 +11,7 @@ class FeedController extends Controller
 {
     public function index(FeedRequest $request)
     {
-        $posts = Post::with(['link', 'markdown', 'author'])
+        $posts = Post::with(['link', 'markdown', 'author', 'group'])
             ->where(function ($query) use ($request) {
                 if ($request->has('groupUuid')) {
                     $query->where('group_uuid', $request->get('groupUuid'));

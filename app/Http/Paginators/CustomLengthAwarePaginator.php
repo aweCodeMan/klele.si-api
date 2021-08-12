@@ -20,9 +20,9 @@ class CustomLengthAwarePaginator extends LengthAwarePaginator
             //'last_page' => $this->lastPage(),
             //'last_page_url' => $this->url($this->lastPage()),
             //'links' => $this->linkCollection()->toArray(),
-            //'next_page_url' => $this->nextPageUrl(),
+            'nextPageUrl' => $this->nextPageUrl(),
             //'path' => $this->path(),
-            //'prev_page_url' => $this->previousPageUrl(),
+            'prevPageUrl' => $this->previousPageUrl(),
         ];
     }
 }
