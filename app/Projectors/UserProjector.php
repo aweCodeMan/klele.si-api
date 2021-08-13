@@ -17,6 +17,7 @@ class UserProjector extends Projector
             'uuid' => $event->aggregateRootUuid(),
             'name' => $event->data->name,
             'surname' => $event->data->surname,
+            'nickname' => $event->data->nickname,
             'email' => $event->data->email,
             'full_name' => "{$event->data->name} {$event->data->surname}",
             'password' => Hash::make(Str::random()), // We fake a random password as we don't have the password stored in the event
@@ -28,6 +29,7 @@ class UserProjector extends Projector
         User::where('uuid', $event->aggregateRootUuid())->update([
             'name' => $event->data->name,
             'surname' => $event->data->surname,
+            'nickname' => $event->data->nickname,
             'full_name' => "{$event->data->name} {$event->data->surname}",
         ]);
     }

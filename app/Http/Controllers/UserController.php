@@ -27,7 +27,7 @@ class UserController extends Controller
         $uuid = $this->generateUuid();
 
         UserAggregate::retrieve($uuid)
-            ->register($request->name, $request->surname, $request->email)
+            ->register($request->name, $request->surname, $request->nickname, $request->email)
             ->persist();
 
         $user = User::where('uuid', $uuid)->first();
@@ -57,7 +57,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request)
     {
         UserAggregate::retrieve($request->user()->uuid)
-            ->update($request->name, $request->surname)
+            ->update($request->name, $request->surname, $request->nickname)
             ->persist();
 
         return new ProfileResource($request->user()->refresh());

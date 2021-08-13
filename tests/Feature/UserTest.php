@@ -26,7 +26,7 @@ class UserTest extends TestCase
 
         $response = $this->post(route('users.register'), $data)->assertStatus(200);
 
-        $this->assertDatabaseHas(User::class, ['email' => $data['email'], 'name' => $data['name'], 'surname' => $data['surname'], 'full_name' => "{$data['name']} {$data['surname']}"]);
+        $this->assertDatabaseHas(User::class, ['email' => $data['email'], 'name' => $data['name'], 'surname' => $data['surname'], 'nickname' => $data['nickname'], 'full_name' => "{$data['name']} {$data['surname']}"]);
     }
 
     /** @test */
@@ -44,9 +44,9 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user, 'api')->put(route('users.update'), ['name' => 'Example', 'surname' => 'Test'])->assertStatus(200);
+        $response = $this->actingAs($user, 'api')->put(route('users.update'), ['name' => 'Example', 'surname' => 'Test', 'nickname' => 'nick'])->assertStatus(200);
 
-        $this->assertDatabaseHas(User::class, ['email' => $user->email, 'name' => 'Example', 'surname' => 'Test', 'full_name' => "Example Test"]);
+        $this->assertDatabaseHas(User::class, ['email' => $user->email, 'name' => 'Example', 'surname' => 'Test', 'full_name' => "Example Test", 'nickname' => 'nick']);
     }
 
     /** @test */
@@ -160,6 +160,7 @@ class UserTest extends TestCase
         return [
             'email' => 'example@example.com',
             'password' => 'secretSecret',
+            'nickname' => 'johnnywalker',
             'name' => 'John',
             'surname' => 'Walker',
         ];
