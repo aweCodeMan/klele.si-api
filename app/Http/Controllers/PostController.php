@@ -9,6 +9,7 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostController extends Controller
 {
@@ -16,12 +17,16 @@ class PostController extends Controller
     {
         switch ($request->get('postType')) {
             case Post::TYPE_MARKDOWN:
-                $this->createMarkdownPost($request);
+                $uuid = $this->createMarkdownPost($request);
                 break;
             case Post::TYPE_LINK:
-                $this->createLinkPost($request);
+                $uuid = $this->createLinkPost($request);
                 break;
         }
+
+        $post = Post::withTrashed()->with('markdown', 'author', 'comments')->where('uuid', $uuid)->firstOrFail();
+
+        return new PostResource($post);
     }
 
     public function update($uuid, UpdatePostRequest $request)

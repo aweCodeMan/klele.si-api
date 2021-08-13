@@ -24,7 +24,7 @@ class StoreCommentRequest extends FormRequest
     public function rules()
     {
         return [
-            'parent_uuid' => ['nullable', 'exists:comments,uuid'],
+            'parentUuid' => ['nullable', 'exists:comments,uuid'],
             'markdown' => ['required'],
         ];
     }

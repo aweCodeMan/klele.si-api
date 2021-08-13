@@ -59,6 +59,6 @@ class Post extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class, 'root_uuid', 'uuid')->with(['markdown', 'author'])->withTrashed();
+        return $this->hasMany(Comment::class, 'root_uuid', 'uuid')->with(['markdown', 'author'])->withTrashed()->orderBy('created_at', 'DESC');
     }
 }

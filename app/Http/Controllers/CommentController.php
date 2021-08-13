@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Aggregates\CommentAggregate;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
+use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class CommentController extends Controller
             ->create($request->user()->uuid, $postUuid, $request->get('parentUuid'), $request->get('markdown'))
             ->persist();
 
-        return response()->json();
+        return new CommentResource(Comment::where('uuid', $uuid)->first());
     }
 
     public function update(string $commentUuid, UpdateCommentRequest $request)
