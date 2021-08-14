@@ -13,11 +13,13 @@ use App\StorableEvents\LinkPostUpdated;
 use App\StorableEvents\MarkdownPostCreated;
 use App\StorableEvents\MarkdownPostDeleted;
 use App\StorableEvents\MarkdownPostUpdated;
+use App\StorableEvents\VoteSubmitted;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class PostProjector extends Projector
 {
-    public function onCommentCreated(CommentCreated $event){
+    public function onCommentCreated(CommentCreated $event)
+    {
         Post::where('uuid', $event->data->root_uuid)->increment('number_of_comments', 1);
     }
 

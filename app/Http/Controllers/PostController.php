@@ -25,7 +25,7 @@ class PostController extends Controller
                 break;
         }
 
-        $post = Post::withTrashed()->with('markdown', 'author', 'comments')->where('uuid', $uuid)->firstOrFail();
+        $post = Post::withTrashed()->with('markdown', 'author', 'comments', 'score', 'comments.score')->where('uuid', $uuid)->firstOrFail();
 
         return new PostResource($post);
     }
@@ -89,7 +89,7 @@ class PostController extends Controller
 
     public function show($slug, Request $request)
     {
-        $post = Post::withTrashed()->with('markdown', 'author', 'comments')->where('slug', $slug)->orWhere('uuid', $slug)->firstOrFail();
+        $post = Post::withTrashed()->with('markdown', 'author', 'comments', 'score', 'comments.score')->where('slug', $slug)->orWhere('uuid', $slug)->firstOrFail();
 
         return new PostResource($post);
     }

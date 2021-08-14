@@ -52,6 +52,11 @@ class Post extends Model
         return $this->belongsTo(User::class, 'author_uuid', 'uuid');
     }
 
+    public function score()
+    {
+        return $this->hasOne(Score::class, 'uuid', 'uuid');
+    }
+
     public function group()
     {
         return $this->belongsTo(Group::class, 'group_uuid', 'uuid');

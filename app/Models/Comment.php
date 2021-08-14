@@ -31,4 +31,9 @@ class Comment extends Model
     {
         return $this->hasOne(Markdown::class, 'uuid', 'uuid');
     }
+
+    public function score()
+    {
+        return $this->hasOne(Score::class, 'uuid', 'uuid');
+    }
 }

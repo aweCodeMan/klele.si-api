@@ -38,6 +38,7 @@ class PostResource extends JsonResource
                 return CommentResource::collection($postComments);
             }),
             'numberOfComments' => $this->number_of_comments,
+            'score' => new ScoreResource($this->score),
             'createdAt' => $this->created_at,
             'deletedAt' => $this->deleted_at,
         ];
