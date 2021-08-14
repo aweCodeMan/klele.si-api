@@ -19,7 +19,7 @@ class UserProjector extends Projector
             'surname' => $event->data->surname,
             'nickname' => $event->data->nickname,
             'email' => $event->data->email,
-            'full_name' => "{$event->data->name} {$event->data->surname}",
+            'full_name' => $this->getFullName($event),
             'password' => Hash::make(Str::random()), // We fake a random password as we don't have the password stored in the event
         ]);
     }
@@ -30,7 +30,22 @@ class UserProjector extends Projector
             'name' => $event->data->name,
             'surname' => $event->data->surname,
             'nickname' => $event->data->nickname,
-            'full_name' => "{$event->data->name} {$event->data->surname}",
+            'full_name' => $this->getFullName($event),
         ]);
+    }
+
+    private function getFullName($event)
+    {
+        $names = [];
+
+        if ($event->data->name) {
+            $names[] = $event->data->name;
+        }
+
+        if ($event->data->surname) {
+            $names[] = $event->data->surname;
+        }
+
+        return implode(" ", $names);
     }
 }
