@@ -6,6 +6,7 @@ use App\Aggregates\LinkPostAggregate;
 use App\Aggregates\MarkdownPostAggregate;
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostFormResource;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
@@ -37,6 +38,14 @@ class PostController extends Controller
             abort(403);
         }
 
+        $rules = ['title' => ['required']];
+
+        if ($post->post_type == Post::TYPE_MARKDOWN) {
+            $rules['markdown'] = ['required'];
+        }
+
+        $this->validate($request, $rules);
+
         switch ($post->post_type) {
             case Post::TYPE_MARKDOWN:
                 $this->updateMarkdownPost($post->uuid, $request);
@@ -45,6 +54,8 @@ class PostController extends Controller
                 $this->updateLinkPost($post->uuid, $request);
                 break;
         }
+
+        return new PostResource($post->refresh());
     }
 
     public function delete($uuid, Request $request)
@@ -63,6 +74,17 @@ class PostController extends Controller
                 $this->deleteLinkPost($post->uuid);
                 break;
         }
+    }
+
+    public function form($uuid, Request $request)
+    {
+        $post = Post::with('markdown')->where('slug', $uuid)->orWhere('uuid', $uuid)->firstOrFail();
+
+        if ($request->user()->cannot('update', $post)) {
+            abort(403);
+        }
+
+        return new PostFormResource($post);
     }
 
     public function show($slug, Request $request)

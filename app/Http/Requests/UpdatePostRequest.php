@@ -23,9 +23,6 @@ class UpdatePostRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'title' => ['required'],
-            'markdown' => ['string'],
-        ];
+        return [];
     }
 }

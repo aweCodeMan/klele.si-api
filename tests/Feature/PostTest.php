@@ -161,8 +161,25 @@ class PostTest extends TestCase
         $response = $this->actingAs($user)->post(route('posts.store'), $data)->assertStatus(200);
 
         $response = $this->actingAs($user)->put(route('posts.update', ['uuid' => Post::first()->uuid]), ['title' => 'Test'])->assertStatus(200);
-
         $this->assertDatabaseHas('posts', ['post_type' => Post::TYPE_LINK, 'title' => 'Test', 'slug' => Str::slug($data['title']), 'group_uuid' => $group->uuid, 'author_uuid' => $user->uuid]);
+
+        //  Does not update links
+        $response = $this->actingAs($user)->put(route('posts.update', ['uuid' => Post::first()->uuid]), ['title' => 'Test', 'link' => 'https://invalid.com'])->assertStatus(200);
+        $this->assertDatabaseMissing('links', ['link' => 'https://invalid.com']);
+    }
+
+    /** @test */
+    public function it_validates_a_link_post()
+    {
+        $post = Post::factory()->linkPost()->create();
+        $response = $this->actingAs($post->author)->put(route('posts.update', ['uuid' => Post::first()->uuid]), [])->assertStatus(422);
+    }
+
+    /** @test */
+    public function it_validates_a_markdown_post()
+    {
+        $post = Post::factory()->markdownPost()->create();
+        $response = $this->actingAs($post->author)->put(route('posts.update', ['uuid' => Post::first()->uuid]), ['title' => 'Test', 'markdown' => ''])->assertStatus(422);
     }
 
     /** @test */
@@ -203,5 +220,40 @@ class PostTest extends TestCase
         $this->assertSame($post->link->link, $json['content']['link']);
         $this->assertNotNull($json['createdAt']);
         $this->assertNull($json['deletedAt']);
+    }
+
+    /** @test */
+    public function it_returns_a_link_post_form()
+    {
+        $post = Post::factory()->linkPost()->create();
+
+        $response = $this->actingAs($post->author)->get(route('posts.form', ['uuid' => $post->uuid]))->assertStatus(200);
+        $json = $response->json('data');
+
+        $this->assertSame($post->uuid, $json['uuid']);
+        $this->assertSame($post->title, $json['title']);
+    }
+
+    /** @test */
+    public function it_returns_a_markdown_post_form()
+    {
+        $post = Post::factory()->markdownPost()->create();
+
+        $response = $this->actingAs($post->author)->get(route('posts.form', ['uuid' => $post->uuid]))->assertStatus(200);
+        $json = $response->json('data');
+
+        $this->assertSame($post->uuid, $json['uuid']);
+        $this->assertSame($post->title, $json['title']);
+        $this->assertSame($post->markdown->markdown, $json['markdown']);
+    }
+
+    /** @test */
+    public function only_authors_can_get_post_forms()
+    {
+        $post = Post::factory()->markdownPost()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('posts.form', ['uuid' => $post->uuid]))->assertStatus(403);
+        $response = $this->actingAs($post->author)->get(route('posts.form', ['uuid' => $post->uuid]))->assertStatus(200);
     }
 }

@@ -39,6 +39,7 @@ Route::name('posts.')->prefix('posts')->group(function() {
     Route::middleware(['auth'])->group(function (){
         Route::post('/', [\App\Http\Controllers\PostController::class, 'store'])->name('store');
         Route::put('{uuid}', [\App\Http\Controllers\PostController::class, 'update'])->name('update');
+        Route::get('{uuid}/form', [\App\Http\Controllers\PostController::class, 'form'])->name('form');
         Route::delete('{uuid}', [\App\Http\Controllers\PostController::class, 'delete'])->name('delete');
 
         Route::post('{postUuid}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
