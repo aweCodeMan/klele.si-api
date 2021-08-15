@@ -36,4 +36,9 @@ class Comment extends Model
     {
         return $this->hasOne(Score::class, 'uuid', 'uuid');
     }
+
+    public function voted()
+    {
+        return $this->hasOne(Vote::class, 'uuid', 'uuid')->where('user_uuid', auth()->user()->uuid);
+    }
 }

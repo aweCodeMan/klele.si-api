@@ -57,6 +57,16 @@ class Post extends Model
         return $this->hasOne(Score::class, 'uuid', 'uuid');
     }
 
+    public function postView()
+    {
+        return $this->hasOne(PostView::class, 'post_uuid', 'uuid')->where('user_uuid', auth()->user()->uuid);
+    }
+
+    public function voted()
+    {
+        return $this->hasOne(Vote::class, 'uuid', 'uuid')->where('user_uuid', auth()->user()->uuid);
+    }
+
     public function group()
     {
         return $this->belongsTo(Group::class, 'group_uuid', 'uuid');

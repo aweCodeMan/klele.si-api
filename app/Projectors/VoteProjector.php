@@ -12,6 +12,12 @@ use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class VoteProjector extends Projector
 {
+    public function onStartingEventReplay()
+    {
+        Score::truncate();
+        Vote::truncate();
+    }
+
     public function onCommentCreated(CommentCreated $event)
     {
         Score::create(['uuid' => $event->aggregateRootUuid()]);
@@ -29,7 +35,10 @@ class VoteProjector extends Projector
 
     public function onVoteSubmitted(VoteSubmitted $event)
     {
-        $vote = Vote::where('uuid', $event->aggregateRootUuid())->where('user_uuid', $event->data->user_uuid)->first();
+        $vote = Vote::where('uuid', $event->aggregateRootUuid())
+            ->where('user_uuid', $event->data->user_uuid)
+            ->first();
+
         $offset = 0;
 
         if ($vote) {
@@ -40,8 +49,7 @@ class VoteProjector extends Projector
             case Vote::UPVOTE:
             case Vote::DOWNVOTE:
 
-                Vote::updateOrCreate(['uuid' => $event->aggregateRootUuid()], [
-                    'user_uuid' => $event->data->user_uuid,
+                Vote::updateOrCreate(['uuid' => $event->aggregateRootUuid(), 'user_uuid' => $event->data->user_uuid], [
                     'type' => $event->data->type,
                     'vote' => $event->data->vote,
                 ]);
@@ -49,7 +57,8 @@ class VoteProjector extends Projector
                 $this->updateScore($event->aggregateRootUuid(), $event->data->vote + $offset);
                 break;
             case Vote::NEUTRAL:
-                Vote::where('uuid', $event->aggregateRootUuid())->delete();
+                $this->updateScore($event->aggregateRootUuid(), $offset);
+                Vote::where('uuid', $event->aggregateRootUuid())->where('user_uuid', $event->data->user_uuid)->delete();
                 break;
         }
     }

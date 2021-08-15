@@ -28,6 +28,7 @@ Route::name('groups.')->prefix('groups')->group(function() {
 });
 
 Route::post('markdown', [\App\Http\Controllers\MarkdownController::class, 'transform'])->name('markdown')->middleware('auth');
+Route::post('views', [\App\Http\Controllers\PostViewController::class, 'store'])->name('views.store')->middleware('auth');
 
 Route::name('comments.')->prefix('comments')->group(function (){
    Route::middleware(['auth', 'verified'])->group(function (){

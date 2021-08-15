@@ -146,7 +146,7 @@ class VoteTest extends TestCase
         $this->assertDatabaseHas('scores', ['uuid' => $post->uuid, 'votes' => 1]);
 
         $response = $this->actingAs($user5)->post(route('votes.store', ['uuid' => $post->uuid, 'type' => 'post', 'vote' => Vote::NEUTRAL]))->assertStatus(200);
-        $this->assertDatabaseHas('scores', ['uuid' => $post->uuid, 'votes' => 1]);
+        $this->assertDatabaseHas('scores', ['uuid' => $post->uuid, 'votes' => 0]);
     }
 
     /** @test */
@@ -181,7 +181,7 @@ class VoteTest extends TestCase
         $this->assertDatabaseHas('scores', ['uuid' => $comment->uuid, 'votes' => 1]);
 
         $response = $this->actingAs($user5)->post(route('votes.store', ['uuid' => $comment->uuid, 'type' => 'comment', 'vote' => Vote::NEUTRAL]))->assertStatus(200);
-        $this->assertDatabaseHas('scores', ['uuid' => $comment->uuid, 'votes' => 1]);
+        $this->assertDatabaseHas('scores', ['uuid' => $comment->uuid, 'votes' => 0]);
     }
 
     /** @test */
@@ -222,5 +222,48 @@ class VoteTest extends TestCase
 
         $this->assertEquals(1, $response->json('data')['score']['votes']);
         $this->assertEquals(0, $response->json('data')['comments'][0]['score']['votes']);
+    }
+
+    /** @test */
+    public function it_returns_votes_for_logged_in_users()
+    {
+        $post = Post::factory()->markdownPost()->create();
+        $user = User::factory()->create();
+
+
+        $response = $this->get(route('feed'))->assertStatus(200);
+        $this->assertArrayNotHasKey('voted', $response->json('data')[0]);
+
+        $response = $this->actingAs($user)->post(route('votes.store', ['uuid' => $post->uuid, 'type' => 'post', 'vote' => Vote::UPVOTE]))->assertStatus(200);
+        $response = $this->actingAs($user)->get(route('feed'))->assertStatus(200);
+
+        $this->assertArrayHasKey('voted', $response->json('data')[0]);
+        $this->assertEquals(1, $response->json('data')[0]['voted']);
+
+        $response = $this->actingAs($user)->post(route('votes.store', ['uuid' => $post->uuid, 'type' => 'post', 'vote' => Vote::NEUTRAL]))->assertStatus(200);
+        $response = $this->actingAs($user)->get(route('feed'))->assertStatus(200);
+
+        $this->assertArrayHasKey('voted', $response->json('data')[0]);
+        $this->assertNull($response->json('data')[0]['voted']);
+    }
+
+    /** @test */
+    public function it_sets_neutral_the_votes_on_a_post()
+    {
+        $post = Post::factory()->markdownPost()->create();
+        $user1 = User::factory()->create();
+
+        $response = $this->actingAs($user1)->post(route('votes.store', ['uuid' => $post->uuid, 'type' => 'post', 'vote' => Vote::UPVOTE]))->assertStatus(200);
+        $this->assertDatabaseHas('scores', ['uuid' => $post->uuid, 'votes' => 1]);
+
+        $response = $this->actingAs($user1)->post(route('votes.store', ['uuid' => $post->uuid, 'type' => 'post', 'vote' => Vote::NEUTRAL]))->assertStatus(200);
+        $this->assertDatabaseHas('scores', ['uuid' => $post->uuid, 'votes' => 0]);
+
+        $response = $this->actingAs($user1)->post(route('votes.store', ['uuid' => $post->uuid, 'type' => 'post', 'vote' => Vote::UPVOTE]))->assertStatus(200);
+        $this->assertDatabaseHas('scores', ['uuid' => $post->uuid, 'votes' => 1]);
+
+        $response = $this->actingAs($user1)->post(route('votes.store', ['uuid' => $post->uuid, 'type' => 'post', 'vote' => Vote::NEUTRAL]))->assertStatus(200);
+        $this->assertDatabaseHas('scores', ['uuid' => $post->uuid, 'votes' => 0]);
+
     }
 }

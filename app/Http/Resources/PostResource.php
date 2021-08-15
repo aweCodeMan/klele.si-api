@@ -27,6 +27,16 @@ class PostResource extends JsonResource
             'title' => !$this->deleted_at ? $this->title : Post::TEXT_DELETED,
             'postType' => $this->post_type,
             'content' => $this->getContent(),
+            'postView' => $this->when($request->user(), function () {
+                return new PostViewResource($this->postView);
+            }),
+            'voted' => $this->when($request->user(), function () {
+                if ($this->voted) {
+                    return $this->voted->vote;
+                }
+
+                return null;
+            }),
             'comments' => $this->whenLoaded('comments', function () {
                 $groups = $this->comments->groupBy('parent_uuid');
 
@@ -57,14 +67,14 @@ class PostResource extends JsonResource
 
     private function makeCommentTree(iterable $postComments, iterable $groups): iterable
     {
-        foreach ($postComments as $postComment){
-            if(isset($groups[$postComment->uuid])){
+        foreach ($postComments as $postComment) {
+            if (isset($groups[$postComment->uuid])) {
                 $ungroup = $groups[$postComment->uuid];
                 unset($groups[$postComment->uuid]);
 
                 $postComment->comments = CommentResource::collection($this->makeCommentTree($ungroup, $groups));
 
-                if(count($groups) === 0){
+                if (count($groups) === 0) {
                     break;
                 }
             }
