@@ -9,6 +9,7 @@ use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class CommentController extends Controller
 {
@@ -37,7 +38,7 @@ class CommentController extends Controller
             ->update($request->get('markdown'))
             ->persist();
 
-        return response()->json();
+        return new CommentResource($comment->refresh());
     }
 
     public function delete(string $commentUuid, Request $request)

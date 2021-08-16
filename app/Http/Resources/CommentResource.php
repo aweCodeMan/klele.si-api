@@ -21,6 +21,7 @@ class CommentResource extends JsonResource
             'parentUuid' => $this->parent_uuid,
             'author' => new AuthorResource($this->author),
             'html' => !$this->deleted_at ? $this->markdown->html : Comment::TEXT_DELETED,
+            'markdown' => !$this->deleted_at ? $this->markdown->markdown : Comment::TEXT_DELETED,
             'comments' => CommentResource::collection($this->comments),
             'score' => new ScoreResource($this->score),
             'voted' => $this->when($request->user(), function () {
