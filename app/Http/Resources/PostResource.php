@@ -50,6 +50,7 @@ class PostResource extends JsonResource
             'numberOfComments' => $this->number_of_comments,
             'score' => new ScoreResource($this->score),
             'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
             'deletedAt' => $this->deleted_at,
         ];
     }

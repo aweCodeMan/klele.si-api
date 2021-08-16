@@ -39,4 +39,19 @@ class CommentController extends Controller
 
         return response()->json();
     }
+
+    public function delete(string $commentUuid, Request $request)
+    {
+        $comment = Comment::where('uuid', $commentUuid)->firstOrFail();
+
+        if ($request->user()->cannot('update', $comment)) {
+            abort(403);
+        }
+
+        CommentAggregate::retrieve($commentUuid)
+            ->delete()
+            ->persist();
+
+        return new CommentResource($comment->refresh());
+    }
 }

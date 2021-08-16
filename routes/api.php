@@ -33,6 +33,7 @@ Route::post('views', [\App\Http\Controllers\PostViewController::class, 'store'])
 Route::name('comments.')->prefix('comments')->group(function (){
    Route::middleware(['auth', 'verified'])->group(function (){
        Route::put('{uuid}', [\App\Http\Controllers\CommentController::class, 'update'])->name('update');
+       Route::delete('{uuid}', [\App\Http\Controllers\CommentController::class, 'delete'])->name('delete');
    });
 });
 

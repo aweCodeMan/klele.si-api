@@ -36,6 +36,24 @@ class CommentTest extends TestCase
     }
 
     /** @test */
+    public function it_deletes_a_comment()
+    {
+        $comment = Comment::factory()->create();
+
+        $response = $this->actingAs($comment->author)->delete(route('comments.delete', ['uuid' => $comment->uuid]))->assertStatus(200);
+
+        $this->assertSoftDeleted(Comment::withTrashed()->first());
+    }
+
+    /** @test */
+    public function it_only_allows_authors_to_delete_a_comment()
+    {
+        $comment = Comment::factory()->create();
+
+        $response = $this->actingAs(User::factory()->create())->delete(route('comments.delete', ['uuid' => $comment->uuid]))->assertStatus(403);
+    }
+
+    /** @test */
     public function it_only_allows_authors_to_update_a_comment()
     {
         $comment = Comment::factory()->create();
