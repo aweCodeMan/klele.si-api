@@ -60,7 +60,11 @@ class PostResource extends JsonResource
         if ($this->markdown) {
             return ['html' => !$this->deleted_at ? $this->markdown->html : Post::TEXT_DELETED,];
         } else if ($this->link) {
-            return ['link' => !$this->deleted_at ? $this->link->link : null,];
+            return [
+                'link' => !$this->deleted_at ? $this->link->link : null,
+                'data' => !$this->deleted_at ? $this->link->meta : null,
+                'domain' => !$this->deleted_at ? parse_url($this->link->link)['host'] : null,
+            ];
         }
 
         return null;
