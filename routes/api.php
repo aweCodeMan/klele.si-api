@@ -37,6 +37,10 @@ Route::name('comments.')->prefix('comments')->group(function (){
    });
 });
 
+Route::name('pinned-posts.')->prefix('pinned-posts')->group(function() {
+    Route::get('/', [\App\Http\Controllers\PinnedPostController::class, 'index'])->name('index');
+});
+
 Route::name('posts.')->prefix('posts')->group(function() {
     Route::middleware(['auth', 'verified'])->group(function (){
         Route::post('/', [\App\Http\Controllers\PostController::class, 'store'])->name('store');

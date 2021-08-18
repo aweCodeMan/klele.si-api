@@ -23,6 +23,8 @@ class CreatePostsTable extends Migration
 
             $table->unsignedSmallInteger('number_of_comments')->default(0);
 
+            $table->date('pinned_at')->nullable()->index();
+            $table->date('pinned_until')->nullable()->index();
             $table->timestamps();
             $table->softDeletes();
 

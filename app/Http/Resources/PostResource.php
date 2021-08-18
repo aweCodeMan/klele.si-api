@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Comment;
 use App\Models\Post;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostResource extends JsonResource
@@ -49,6 +50,10 @@ class PostResource extends JsonResource
             }),
             'numberOfComments' => $this->number_of_comments,
             'score' => new ScoreResource($this->score),
+            'pinnedAt' => $this->pinned_at,
+            'pinnedUntil' => $this->pinned_until,
+            'pinnedProgress' => !$this->pinned_until ? 0 : $this->calculatePinnedProgress($this->pinned_at, $this->pinned_until),
+            'pinnedDaysToGo' => !$this->pinned_until ? null : now()->diffInDays($this->pinned_until),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
             'deletedAt' => $this->deleted_at,
@@ -86,5 +91,13 @@ class PostResource extends JsonResource
         }
 
         return $postComments;
+    }
+
+    private function calculatePinnedProgress(Carbon $pinnedAt, Carbon $pinnedUntil)
+    {
+        $fullRangeInDays = $pinnedAt->diffInDays($pinnedUntil) + 1;
+        $currentRangeInDays = $pinnedAt->diffInDays(now()) + 1;
+
+        return (int) round(($currentRangeInDays / $fullRangeInDays) * 100);
     }
 }

@@ -11,6 +11,8 @@ use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class MarkdownPostAggregate extends AggregateRoot
 {
+    use PinsPosts;
+
     public function create(string $authorUuid, string $title, string $groupUuid, string $markdown): static
     {
         $this->recordThat(new MarkdownPostCreated(new MarkdownPostCreatedData($authorUuid, $title, $groupUuid, $markdown)));

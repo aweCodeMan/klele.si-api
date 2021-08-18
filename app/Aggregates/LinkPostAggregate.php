@@ -11,6 +11,8 @@ use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class LinkPostAggregate extends AggregateRoot
 {
+    use PinsPosts;
+
     public function create(string $authorUuid, string $title, string $groupUuid, string $link): static
     {
         $this->recordThat(new LinkPostCreated(new LinkPostCreatedData($authorUuid, $title, $groupUuid, $link)));

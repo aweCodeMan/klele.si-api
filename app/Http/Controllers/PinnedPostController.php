@@ -7,7 +7,7 @@ use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
-class FeedController extends Controller
+class PinnedPostController extends Controller
 {
     public function index(FeedRequest $request)
     {
@@ -17,7 +17,7 @@ class FeedController extends Controller
                     $query->where('group_uuid', $request->get('groupUuid'));
                 }
             })
-            ->whereNull('pinned_at')
+            ->whereNotNull('pinned_at')
             ->orderByDesc('created_at')
             ->paginate($request->has('perPage') ? $request->get('perPage') : 50);
 

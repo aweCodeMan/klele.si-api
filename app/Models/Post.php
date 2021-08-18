@@ -25,6 +25,11 @@ class Post extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'pinned_at' => 'date',
+        'pinned_until' => 'date',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
