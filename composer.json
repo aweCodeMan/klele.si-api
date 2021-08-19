@@ -16,7 +16,8 @@
         "laravel/tinker": "^2.5",
         "spatie/laravel-event-sourcing": "^5.0",
         "spatie/laravel-sluggable": "^3.1",
-        "spekulatius/phpscraper": "^0.5.1"
+        "spekulatius/phpscraper": "^0.5.1",
+        "vedmant/laravel-feed-reader": "^1.5"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
