@@ -10,7 +10,7 @@ class Comment extends Model
 {
     use HasFactory, SoftDeletes;
 
-    const TEXT_DELETED = Post::TEXT_DELETED;
+    const TEXT_DELETED = '[Izbrisan komentar]';
 
     protected $primaryKey = 'uuid';
 
