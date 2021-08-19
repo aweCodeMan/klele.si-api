@@ -20,7 +20,8 @@ class PostProjector extends Projector
 {
     public function onCommentCreated(CommentCreated $event)
     {
-        Post::where('uuid', $event->data->root_uuid)->increment('number_of_comments', 1);
+        $post = Post::where('uuid', $event->data->root_uuid)->first();
+        Post::where('uuid', $event->data->root_uuid)->increment('number_of_comments', 1, ['updated_at' => $post->updated_at]);
     }
 
     public function onMarkdownPostCreated(MarkdownPostCreated $event)
