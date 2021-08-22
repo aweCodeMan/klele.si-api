@@ -15,7 +15,6 @@ class CustomLengthAwarePaginator extends LengthAwarePaginator
             'perPage' => $this->perPage(),
             'to' => $this->lastItem(),
             'total' => $this->total(),
-
             //'first_page_url' => $this->url(1),
             //'last_page' => $this->lastPage(),
             //'last_page_url' => $this->url($this->lastPage()),
@@ -23,6 +22,7 @@ class CustomLengthAwarePaginator extends LengthAwarePaginator
             'nextPageUrl' => $this->nextPageUrl(),
             //'path' => $this->path(),
             'prevPageUrl' => $this->previousPageUrl(),
+            'query' => $this->query,
         ];
     }
 }
