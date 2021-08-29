@@ -4,6 +4,7 @@ namespace App\Aggregates;
 
 use App\StorableEvents\CommentCreated;
 use App\StorableEvents\CommentDeleted;
+use App\StorableEvents\CommentRestored;
 use App\StorableEvents\CommentUpdated;
 use App\StorableEvents\Data\CommentCreatedData;
 use App\StorableEvents\Data\CommentUpdatedData;
@@ -30,6 +31,12 @@ class CommentAggregate extends AggregateRoot
     public function delete(): static
     {
         $this->recordThat(new CommentDeleted());
+        return $this;
+    }
+
+    public function restore(): static
+    {
+        $this->recordThat(new CommentRestored());
         return $this;
     }
 }

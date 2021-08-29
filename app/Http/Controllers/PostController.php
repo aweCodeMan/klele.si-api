@@ -76,6 +76,24 @@ class PostController extends Controller
         }
     }
 
+    public function restore($uuid, Request $request)
+    {
+        $post = Post::withTrashed()->where('uuid', $uuid)->firstOrFail();
+
+        if ($request->user()->cannot('restore', $post)) {
+            abort(403);
+        }
+
+        switch ($post->post_type) {
+            case Post::TYPE_MARKDOWN:
+                $this->restoreMarkdownPost($uuid);
+                break;
+            case Post::TYPE_LINK:
+                $this->restoreLinkPost($post->uuid);
+                break;
+        }
+    }
+
     public function form($uuid, Request $request)
     {
         $post = Post::with('markdown')->where('slug', $uuid)->orWhere('uuid', $uuid)->firstOrFail();
@@ -123,6 +141,15 @@ class PostController extends Controller
         return $uuid;
     }
 
+    private function restoreMarkdownPost($uuid)
+    {
+        MarkdownPostAggregate::retrieve($uuid)
+            ->restore()
+            ->persist();
+
+        return $uuid;
+    }
+
     private function createLinkPost(CreatePostRequest $request)
     {
         $uuid = $this->generateUuid();
@@ -147,6 +174,15 @@ class PostController extends Controller
     {
         LinkPostAggregate::retrieve($uuid)
             ->delete()
+            ->persist();
+
+        return $uuid;
+    }
+
+    private function restoreLinkPost($uuid)
+    {
+        LinkPostAggregate::retrieve($uuid)
+            ->restore()
             ->persist();
 
         return $uuid;

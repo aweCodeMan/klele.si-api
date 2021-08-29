@@ -12,11 +12,24 @@ class PostPolicy
 
     public function update(User $user, Post $post)
     {
+        if ($user->can('update posts')) {
+            return true;
+        }
+
         return $user->uuid === $post->author_uuid;
     }
 
     public function delete(User $user, Post $post)
     {
+        if ($user->can('delete posts')) {
+            return true;
+        }
+
         return $user->uuid === $post->author_uuid;
+    }
+
+    public function restore(User $user, Post $post)
+    {
+        return $user->can('restore posts');
     }
 }

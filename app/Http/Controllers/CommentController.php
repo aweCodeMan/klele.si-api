@@ -55,4 +55,19 @@ class CommentController extends Controller
 
         return new CommentResource($comment->refresh());
     }
+
+    public function restore(string $commentUuid, Request $request)
+    {
+        $comment = Comment::withTrashed()->where('uuid', $commentUuid)->firstOrFail();
+
+        if ($request->user()->cannot('restore', $comment)) {
+            abort(403);
+        }
+
+        CommentAggregate::retrieve($commentUuid)
+            ->restore()
+            ->persist();
+
+        return new CommentResource($comment->refresh());
+    }
 }

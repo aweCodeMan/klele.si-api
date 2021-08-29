@@ -12,11 +12,24 @@ class CommentPolicy
 
     public function update(User $user, Comment $comment)
     {
+        if ($user->can('update comments')) {
+            return true;
+        }
+
         return $user->uuid === $comment->author_uuid;
     }
 
     public function delete(User $user, Comment $comment)
     {
+        if ($user->can('delete comments')) {
+            return true;
+        }
+
         return $user->uuid === $comment->author_uuid;
+    }
+
+    public function restore(User $user, Comment $comment)
+    {
+        return $user->can('restore comments');
     }
 }

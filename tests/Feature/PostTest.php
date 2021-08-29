@@ -67,6 +67,20 @@ class PostTest extends TestCase
     }
 
     /** @test */
+    public function admin_can_update_a_post()
+    {
+        $user = User::factory()->create();
+        $admin = $this->createAdminUser();
+        $group = Group::factory()->create();
+
+        $data = ['postType' => Post::TYPE_MARKDOWN, 'title' => 'Example', 'markdown' => '#Hello', 'groupUuid' => $group->uuid];
+
+        $response = $this->actingAs($user)->post(route('posts.store'), $data)->assertStatus(200);
+        $response = $this->actingAs($admin)->put(route('posts.update', ['uuid' => Post::first()->uuid]), ['title' => 'Test', 'markdown' => '#Test'])->assertStatus(200);
+        $this->assertDatabaseHas('markdowns', ['html' => '<h1>Test</h1>']);
+    }
+
+    /** @test */
     public function it_deletes_a_post()
     {
         $user = User::factory()->create();
@@ -78,6 +92,33 @@ class PostTest extends TestCase
         $response = $this->actingAs($user)->delete(route('posts.delete', Post::first()->uuid))->assertStatus(200);
 
         $this->assertSoftDeleted(Post::withTrashed()->first());
+    }
+
+    /** @test */
+    public function an_admin_can_deletes_a_post()
+    {
+        $user = User::factory()->create();
+        $admin = $this->createAdminUser();
+        $group = Group::factory()->create();
+
+        $data = ['postType' => Post::TYPE_MARKDOWN, 'title' => 'Example', 'markdown' => '#Hello', 'groupUuid' => $group->uuid];
+
+        $response = $this->actingAs($user)->post(route('posts.store'), $data)->assertStatus(200);
+        $response = $this->actingAs($admin)->delete(route('posts.delete', Post::first()->uuid))->assertStatus(200);
+
+        $this->assertSoftDeleted(Post::withTrashed()->first());
+    }
+
+    /** @test */
+    public function an_admin_can_restore_a_post()
+    {
+        $post = Post::factory()->markdownPost()->create(['deleted_at' => now()]);
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($post->author)->post(route('posts.restore', ['uuid' => $post->uuid]), [])->assertStatus(403);
+        $response = $this->actingAs($admin)->post(route('posts.restore', ['uuid' => $post->uuid]), [])->assertStatus(200);
+
+        $this->assertDatabaseHas('posts', ['uuid' => $post->uuid, 'deleted_at' => null]);
     }
 
     /** @test */
@@ -232,6 +273,20 @@ class PostTest extends TestCase
 
         $this->assertSame($post->uuid, $json['uuid']);
         $this->assertSame($post->title, $json['title']);
+    }
+
+    /** @test */
+    public function it_returns_a_link_post_form_for_an_admin()
+    {
+        $post = Post::factory()->markdownPost()->create();
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($admin)->get(route('posts.form', ['uuid' => $post->uuid]))->assertStatus(200);
+        $json = $response->json('data');
+
+        $this->assertSame($post->uuid, $json['uuid']);
+        $this->assertSame($post->title, $json['title']);
+        $this->assertSame($post->markdown->markdown, $json['markdown']);
     }
 
     /** @test */

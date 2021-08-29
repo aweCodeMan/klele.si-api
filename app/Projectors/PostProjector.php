@@ -13,6 +13,7 @@ use App\StorableEvents\LinkPostUpdated;
 use App\StorableEvents\MarkdownPostCreated;
 use App\StorableEvents\MarkdownPostDeleted;
 use App\StorableEvents\MarkdownPostUpdated;
+use App\StorableEvents\PostRestored;
 use App\StorableEvents\VoteSubmitted;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
@@ -74,6 +75,10 @@ class PostProjector extends Projector
         Post::where('uuid', $event->aggregateRootUuid())->update([
             'title' => $event->data->title,
         ]);
+    }
+
+    public function onPostRestored(PostRestored $event){
+        Post::withTrashed()->where('uuid', $event->aggregateRootUuid())->restore();
     }
 
     public function onMarkdownPostDelete(MarkdownPostDeleted $event)

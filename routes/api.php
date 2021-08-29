@@ -34,6 +34,7 @@ Route::name('comments.')->prefix('comments')->group(function (){
    Route::middleware(['auth', 'verified'])->group(function (){
        Route::put('{uuid}', [\App\Http\Controllers\CommentController::class, 'update'])->name('update');
        Route::delete('{uuid}', [\App\Http\Controllers\CommentController::class, 'delete'])->name('delete');
+       Route::post('{uuid}/restore', [\App\Http\Controllers\CommentController::class, 'restore'])->name('restore');
    });
 });
 
@@ -47,6 +48,7 @@ Route::name('posts.')->prefix('posts')->group(function() {
         Route::put('{uuid}', [\App\Http\Controllers\PostController::class, 'update'])->name('update');
         Route::get('{uuid}/form', [\App\Http\Controllers\PostController::class, 'form'])->name('form');
         Route::delete('{uuid}', [\App\Http\Controllers\PostController::class, 'delete'])->name('delete');
+        Route::post('{uuid}/restore', [\App\Http\Controllers\PostController::class, 'restore'])->name('restore');
 
         Route::post('{postUuid}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
     });

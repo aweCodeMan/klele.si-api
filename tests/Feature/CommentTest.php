@@ -36,11 +36,45 @@ class CommentTest extends TestCase
     }
 
     /** @test */
+    public function an_admin_can_update_a_comment()
+    {
+        $comment = Comment::factory()->create();
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($admin)->put(route('comments.update', ['uuid' => $comment->uuid]), ['markdown' => '#Comment'])->assertStatus(200);
+
+        $this->assertDatabaseHas('markdowns', ['html' => '<h1>Comment</h1>']);
+    }
+
+    /** @test */
     public function it_deletes_a_comment()
     {
         $comment = Comment::factory()->create();
 
         $response = $this->actingAs($comment->author)->delete(route('comments.delete', ['uuid' => $comment->uuid]))->assertStatus(200);
+
+        $this->assertSoftDeleted(Comment::withTrashed()->first());
+    }
+
+    /** @test */
+    public function only_admins_can_restore_a_comment()
+    {
+        $comment = Comment::factory()->create(['deleted_at' => now()]);
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($comment->author)->post(route('comments.restore', ['uuid' => $comment->uuid]))->assertStatus(403);
+        $response = $this->actingAs($admin)->post(route('comments.restore', ['uuid' => $comment->uuid]))->assertStatus(200);
+
+        $this->assertDatabaseHas('comments', ['uuid' => $comment->uuid, 'deleted_at' => null]);
+    }
+
+    /** @test */
+    public function an_admin_can_delete_a_comment()
+    {
+        $comment = Comment::factory()->create();
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($admin)->delete(route('comments.delete', ['uuid' => $comment->uuid]))->assertStatus(200);
 
         $this->assertSoftDeleted(Comment::withTrashed()->first());
     }

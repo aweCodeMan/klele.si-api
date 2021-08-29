@@ -5,14 +5,17 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Notifications\ResetPasswordLinkNotification;
 use App\Notifications\VerifyEmailNotification;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\URL;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -37,6 +40,18 @@ class UserTest extends TestCase
         $response = $this->actingAs($user, 'api')->get(route('users.show'))->assertStatus(200);
 
         $this->assertSame($user->uuid, $response->json('data.uuid'));
+    }
+
+    /** @test */
+    public function it_returns_roles_and_permissions()
+    {
+        $user = $this->createAdminUser();
+
+        $response = $this->actingAs($user, 'api')->get(route('users.show'))->assertStatus(200);
+
+        $this->assertNotNull($response->json('data.roles'));
+        $this->assertNotFalse(array_search('admin', $response->json('data.roles')));
+        $this->assertNotNull($response->json('data.permissions'));
     }
 
     /** @test */

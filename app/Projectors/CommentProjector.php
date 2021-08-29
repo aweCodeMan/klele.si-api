@@ -7,6 +7,7 @@ use App\Models\Markdown;
 use App\Services\MarkdownService;
 use App\StorableEvents\CommentCreated;
 use App\StorableEvents\CommentDeleted;
+use App\StorableEvents\CommentRestored;
 use App\StorableEvents\CommentUpdated;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
@@ -41,5 +42,10 @@ class CommentProjector extends Projector
     public function onCommentDeleted(CommentDeleted $event)
     {
         Comment::where('uuid', $event->aggregateRootUuid())->delete();
+    }
+
+    public function onCommentRestored(CommentRestored $event)
+    {
+        Comment::withTrashed()->where('uuid', $event->aggregateRootUuid())->restore();
     }
 }
