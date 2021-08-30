@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Comment;
 use App\Models\Group;
 use App\Models\Post;
 use App\Models\User;
@@ -78,6 +79,79 @@ class PostTest extends TestCase
         $response = $this->actingAs($user)->post(route('posts.store'), $data)->assertStatus(200);
         $response = $this->actingAs($admin)->put(route('posts.update', ['uuid' => Post::first()->uuid]), ['title' => 'Test', 'markdown' => '#Test'])->assertStatus(200);
         $this->assertDatabaseHas('markdowns', ['html' => '<h1>Test</h1>']);
+    }
+
+    /** @test */
+    public function admin_can_lock_a_post()
+    {
+        $post = Post::factory()->markdownPost()->create();
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($post->author)->post(route('posts.lock', ['uuid' => $post->uuid]), [])->assertStatus(403);
+        $response = $this->actingAs($admin)->post(route('posts.lock', ['uuid' => $post->uuid]), [])->assertStatus(200);
+
+        $this->assertNotNull($post->refresh()->locked_at);
+    }
+
+    /** @test */
+    public function admin_can_unlock_a_post()
+    {
+        $post = Post::factory()->markdownPost()->create(['locked_at' => now()]);
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($post->author)->post(route('posts.unlock', ['uuid' => $post->uuid]), [])->assertStatus(403);
+        $response = $this->actingAs($admin)->post(route('posts.unlock', ['uuid' => $post->uuid]), [])->assertStatus(200);
+
+        $this->assertNull($post->refresh()->locked_at);
+    }
+
+    /** @test */
+    public function admin_can_update_a_locked_post()
+    {
+        $post = Post::factory()->markdownPost()->create(['locked_at' => now()]);
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($post->author)->put(route('posts.update', ['uuid' => Post::first()->uuid]), ['title' => 'Test', 'markdown' => '#Test'])->assertStatus(403);
+        $response = $this->actingAs($admin)->put(route('posts.update', ['uuid' => Post::first()->uuid]), ['title' => 'Test', 'markdown' => '#Test'])->assertStatus(200);
+
+        $this->assertDatabaseHas('markdowns', ['html' => '<h1>Test</h1>']);
+    }
+
+    /** @test */
+    public function admin_can_delete_a_locked_post()
+    {
+        $post = Post::factory()->markdownPost()->create(['locked_at' => now()]);
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($post->author)->delete(route('posts.delete', ['uuid' => Post::first()->uuid]))->assertStatus(403);
+        $response = $this->actingAs($admin)->delete(route('posts.delete', ['uuid' => Post::first()->uuid]))->assertStatus(200);
+
+        $this->assertSoftDeleted(Post::withTrashed()->first());
+    }
+
+    /** @test */
+    public function only_admins_can_submit_comments_to_a_locked_post()
+    {
+        $post = Post::factory()->markdownPost()->create(['locked_at' => now()]);
+        $admin = $this->createAdminUser();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('posts.comments.store', ['postUuid' => $post->uuid]), ['markdown' => '#Comment'])->assertStatus(403);
+        $response = $this->actingAs($admin)->post(route('posts.comments.store', ['postUuid' => $post->uuid]), ['markdown' => '#Comment'])->assertStatus(200);
+
+        $this->assertDatabaseHas('markdowns', ['html' => '<h1>Comment</h1>']);
+    }
+
+    /** @test */
+    public function only_admins_can_submit_a_reply_to_comments_to_a_locked_post()
+    {
+        $post = Post::factory()->markdownPost()->create(['locked_at' => now()]);
+        $comment = Comment::factory()->create(['root_uuid' => $post->uuid]);
+        $admin = $this->createAdminUser();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('posts.comments.store', ['postUuid' => $post->uuid]), ['markdown' => '#Comment', 'parentUuid' => $comment->uuid])->assertStatus(403);
+        $response = $this->actingAs($admin)->post(route('posts.comments.store', ['postUuid' => $post->uuid]), ['markdown' => '#Comment', 'parentUuid' => $comment->uuid])->assertStatus(200);
     }
 
     /** @test */

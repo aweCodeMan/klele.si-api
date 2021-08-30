@@ -16,7 +16,7 @@ class PostPolicy
             return true;
         }
 
-        return $user->uuid === $post->author_uuid;
+        return $user->uuid === $post->author_uuid && $post->locked_at === null;
     }
 
     public function delete(User $user, Post $post)
@@ -25,11 +25,21 @@ class PostPolicy
             return true;
         }
 
-        return $user->uuid === $post->author_uuid;
+        return $user->uuid === $post->author_uuid && $post->locked_at === null;
     }
 
     public function restore(User $user, Post $post)
     {
         return $user->can('restore posts');
+    }
+
+    public function lock(User $user, Post $post)
+    {
+        return $user->can('lock posts');
+    }
+
+    public function unlock(User $user, Post $post)
+    {
+        return $user->can('unlock posts');
     }
 }

@@ -25,6 +25,7 @@ class CreatePostsTable extends Migration
 
             $table->date('pinned_at')->nullable()->index();
             $table->date('pinned_until')->nullable()->index();
+            $table->date('locked_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

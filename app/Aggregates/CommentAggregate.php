@@ -4,7 +4,9 @@ namespace App\Aggregates;
 
 use App\StorableEvents\CommentCreated;
 use App\StorableEvents\CommentDeleted;
+use App\StorableEvents\CommentLocked;
 use App\StorableEvents\CommentRestored;
+use App\StorableEvents\CommentUnlocked;
 use App\StorableEvents\CommentUpdated;
 use App\StorableEvents\Data\CommentCreatedData;
 use App\StorableEvents\Data\CommentUpdatedData;
@@ -37,6 +39,18 @@ class CommentAggregate extends AggregateRoot
     public function restore(): static
     {
         $this->recordThat(new CommentRestored());
+        return $this;
+    }
+
+    public function unlock()
+    {
+        $this->recordThat(new CommentUnlocked());
+        return $this;
+    }
+
+    public function lock()
+    {
+        $this->recordThat(new CommentLocked());
         return $this;
     }
 }

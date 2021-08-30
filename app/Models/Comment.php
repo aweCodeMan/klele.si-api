@@ -22,6 +22,10 @@ class Comment extends Model
 
     public $comments = [];
 
+    protected $casts = [
+        'locked_at' => 'date',
+    ];
+
     public function author()
     {
         return $this->belongsTo(User::class, 'author_uuid', 'uuid');

@@ -13,7 +13,9 @@ use App\StorableEvents\LinkPostUpdated;
 use App\StorableEvents\MarkdownPostCreated;
 use App\StorableEvents\MarkdownPostDeleted;
 use App\StorableEvents\MarkdownPostUpdated;
+use App\StorableEvents\PostLocked;
 use App\StorableEvents\PostRestored;
+use App\StorableEvents\PostUnlocked;
 use App\StorableEvents\VoteSubmitted;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
@@ -77,8 +79,19 @@ class PostProjector extends Projector
         ]);
     }
 
-    public function onPostRestored(PostRestored $event){
+    public function onPostRestored(PostRestored $event)
+    {
         Post::withTrashed()->where('uuid', $event->aggregateRootUuid())->restore();
+    }
+
+    public function onPostLocked(PostLocked $event)
+    {
+        Post::withTrashed()->where('uuid', $event->aggregateRootUuid())->update(['locked_at' => $event->createdAt()]);
+    }
+
+    public function onPostUnlocked(PostUnlocked $event)
+    {
+        Post::withTrashed()->where('uuid', $event->aggregateRootUuid())->update(['locked_at' => null]);
     }
 
     public function onMarkdownPostDelete(MarkdownPostDeleted $event)

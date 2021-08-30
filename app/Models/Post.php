@@ -28,6 +28,7 @@ class Post extends Model
     protected $casts = [
         'pinned_at' => 'date',
         'pinned_until' => 'date',
+        'locked_at' => 'date',
     ];
 
     public function getSlugOptions(): SlugOptions

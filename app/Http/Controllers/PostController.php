@@ -112,6 +112,46 @@ class PostController extends Controller
         return new PostResource($post);
     }
 
+    public function lock($uuid, Request $request)
+    {
+        $post = Post::where('uuid', $uuid)->firstOrFail();
+
+        if ($request->user()->cannot('lock', $post)) {
+            abort(403);
+        }
+
+        switch ($post->post_type) {
+            case Post::TYPE_MARKDOWN:
+                $this->lockMarkdownPost($post->uuid);
+                break;
+            case Post::TYPE_LINK:
+                $this->lockLinkPost($post->uuid);
+                break;
+        }
+
+        return new PostResource($post->refresh());
+    }
+
+    public function unlock($uuid, Request $request)
+    {
+        $post = Post::where('uuid', $uuid)->firstOrFail();
+
+        if ($request->user()->cannot('unlock', $post)) {
+            abort(403);
+        }
+
+        switch ($post->post_type) {
+            case Post::TYPE_MARKDOWN:
+                $this->unlockMarkdownPost($post->uuid);
+                break;
+            case Post::TYPE_LINK:
+                $this->unlockLinkPost($post->uuid);
+                break;
+        }
+
+        return new PostResource($post->refresh());
+    }
+
     private function createMarkdownPost(CreatePostRequest $request): string
     {
         $uuid = $this->generateUuid();
@@ -150,6 +190,24 @@ class PostController extends Controller
         return $uuid;
     }
 
+    private function lockMarkdownPost($uuid)
+    {
+        MarkdownPostAggregate::retrieve($uuid)
+            ->lock()
+            ->persist();
+
+        return $uuid;
+    }
+
+    private function unlockMarkdownPost($uuid)
+    {
+        MarkdownPostAggregate::retrieve($uuid)
+            ->unlock()
+            ->persist();
+
+        return $uuid;
+    }
+
     private function createLinkPost(CreatePostRequest $request)
     {
         $uuid = $this->generateUuid();
@@ -183,6 +241,24 @@ class PostController extends Controller
     {
         LinkPostAggregate::retrieve($uuid)
             ->restore()
+            ->persist();
+
+        return $uuid;
+    }
+
+    private function lockLinkPost($uuid)
+    {
+        LinkPostAggregate::retrieve($uuid)
+            ->lock()
+            ->persist();
+
+        return $uuid;
+    }
+
+    private function unlockLinkPost($uuid)
+    {
+        LinkPostAggregate::retrieve($uuid)
+            ->unlock()
             ->persist();
 
         return $uuid;

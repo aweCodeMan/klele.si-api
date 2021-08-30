@@ -7,7 +7,9 @@ use App\Models\Markdown;
 use App\Services\MarkdownService;
 use App\StorableEvents\CommentCreated;
 use App\StorableEvents\CommentDeleted;
+use App\StorableEvents\CommentLocked;
 use App\StorableEvents\CommentRestored;
+use App\StorableEvents\CommentUnlocked;
 use App\StorableEvents\CommentUpdated;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
@@ -47,5 +49,15 @@ class CommentProjector extends Projector
     public function onCommentRestored(CommentRestored $event)
     {
         Comment::withTrashed()->where('uuid', $event->aggregateRootUuid())->restore();
+    }
+
+    public function onCommentLocked(CommentLocked $event)
+    {
+        Comment::withTrashed()->where('uuid', $event->aggregateRootUuid())->update(['locked_at' => $event->createdAt()]);
+    }
+
+    public function onCommentUnlocked(CommentUnlocked $event)
+    {
+        Comment::withTrashed()->where('uuid', $event->aggregateRootUuid())->update(['locked_at' => null]);
     }
 }

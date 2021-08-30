@@ -35,6 +35,8 @@ Route::name('comments.')->prefix('comments')->group(function (){
        Route::put('{uuid}', [\App\Http\Controllers\CommentController::class, 'update'])->name('update');
        Route::delete('{uuid}', [\App\Http\Controllers\CommentController::class, 'delete'])->name('delete');
        Route::post('{uuid}/restore', [\App\Http\Controllers\CommentController::class, 'restore'])->name('restore');
+       Route::post('{uuid}/lock', [\App\Http\Controllers\CommentController::class, 'lock'])->name('lock');
+       Route::post('{uuid}/unlock', [\App\Http\Controllers\CommentController::class, 'unlock'])->name('unlock');
    });
 });
 
@@ -49,6 +51,8 @@ Route::name('posts.')->prefix('posts')->group(function() {
         Route::get('{uuid}/form', [\App\Http\Controllers\PostController::class, 'form'])->name('form');
         Route::delete('{uuid}', [\App\Http\Controllers\PostController::class, 'delete'])->name('delete');
         Route::post('{uuid}/restore', [\App\Http\Controllers\PostController::class, 'restore'])->name('restore');
+        Route::post('{uuid}/lock', [\App\Http\Controllers\PostController::class, 'lock'])->name('lock');
+        Route::post('{uuid}/unlock', [\App\Http\Controllers\PostController::class, 'unlock'])->name('unlock');
 
         Route::post('{postUuid}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
     });

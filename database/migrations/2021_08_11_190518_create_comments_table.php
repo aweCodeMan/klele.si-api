@@ -18,6 +18,7 @@ class CreateCommentsTable extends Migration
             $table->uuid('root_uuid')->index();
             $table->uuid('parent_uuid')->nullable()->index();
             $table->uuid('author_uuid')->index();
+            $table->date('locked_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

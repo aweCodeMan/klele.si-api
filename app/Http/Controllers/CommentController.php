@@ -17,6 +17,10 @@ class CommentController extends Controller
     {
         $post = Post::where('uuid', $postUuid)->firstOrFail();
 
+        if($post->locked_at && $request->user()->cannot('update', $post)){
+            abort(403);
+        }
+
         $uuid = $this->generateUuid();
 
         CommentAggregate::retrieve($uuid)
@@ -66,6 +70,36 @@ class CommentController extends Controller
 
         CommentAggregate::retrieve($commentUuid)
             ->restore()
+            ->persist();
+
+        return new CommentResource($comment->refresh());
+    }
+
+    public function lock($uuid, Request $request)
+    {
+        $comment = Comment::where('uuid', $uuid)->firstOrFail();
+
+        if ($request->user()->cannot('lock', $comment)) {
+            abort(403);
+        }
+
+        CommentAggregate::retrieve($uuid)
+            ->lock()
+            ->persist();
+
+        return new CommentResource($comment->refresh());
+    }
+
+    public function unlock($uuid, Request $request)
+    {
+        $comment = Comment::where('uuid', $uuid)->firstOrFail();
+
+        if ($request->user()->cannot('unlock', $comment)) {
+            abort(403);
+        }
+
+        CommentAggregate::retrieve($uuid)
+            ->unlock()
             ->persist();
 
         return new CommentResource($comment->refresh());

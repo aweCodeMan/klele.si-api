@@ -54,6 +54,7 @@ class PostResource extends JsonResource
             'pinnedUntil' => $this->pinned_until,
             'pinnedProgress' => !$this->pinned_until ? 0 : $this->calculatePinnedProgress($this->pinned_at, $this->pinned_until),
             'pinnedDaysToGo' => !$this->pinned_until ? null : (now()->diffInDays($this->pinned_until) + 1),
+            'lockedAt' => $this->locked_at,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
             'deletedAt' => $this->deleted_at,

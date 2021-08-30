@@ -11,7 +11,7 @@ use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class MarkdownPostAggregate extends AggregateRoot
 {
-    use PinsPosts, RestoresPosts;
+    use PinsPosts, RestoresPosts, LocksPosts;
 
     public function create(string $authorUuid, string $title, string $groupUuid, string $markdown): static
     {

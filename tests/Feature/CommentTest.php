@@ -36,6 +36,54 @@ class CommentTest extends TestCase
     }
 
     /** @test */
+    public function admin_can_lock_a_comment()
+    {
+        $comment = Comment::factory()->create();
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($comment->author)->post(route('comments.lock', ['uuid' => $comment->uuid]), [])->assertStatus(403);
+        $response = $this->actingAs($admin)->post(route('comments.lock', ['uuid' => $comment->uuid]), [])->assertStatus(200);
+
+        $this->assertNotNull($comment->refresh()->locked_at);
+    }
+
+    /** @test */
+    public function admin_can_unlock_a_comment()
+    {
+        $comment = Comment::factory()->create(['locked_at' => now()]);
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($comment->author)->post(route('comments.unlock', ['uuid' => $comment->uuid]), [])->assertStatus(403);
+        $response = $this->actingAs($admin)->post(route('comments.unlock', ['uuid' => $comment->uuid]), [])->assertStatus(200);
+
+        $this->assertNull($comment->refresh()->locked_at);
+    }
+
+    /** @test */
+    public function admin_can_update_a_locked_comment()
+    {
+        $comment = Comment::factory()->create(['locked_at' => now()]);
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($comment->author)->put(route('comments.update', ['uuid' => $comment->uuid]), ['markdown' => '#Test'])->assertStatus(403);
+        $response = $this->actingAs($admin)->put(route('comments.update', ['uuid' => $comment->uuid]), ['markdown' => '#Test'])->assertStatus(200);
+
+        $this->assertDatabaseHas('markdowns', ['html' => '<h1>Test</h1>']);
+    }
+
+    /** @test */
+    public function admin_can_delete_a_locked_comment()
+    {
+        $comment = Comment::factory()->create(['locked_at' => now()]);
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($comment->author)->delete(route('comments.delete', ['uuid' => $comment->uuid]))->assertStatus(403);
+        $response = $this->actingAs($admin)->delete(route('comments.delete', ['uuid' => $comment->uuid]))->assertStatus(200);
+
+        $this->assertSoftDeleted(Comment::withTrashed()->first());
+    }
+
+    /** @test */
     public function an_admin_can_update_a_comment()
     {
         $comment = Comment::factory()->create();
