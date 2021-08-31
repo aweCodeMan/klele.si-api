@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('klele:create-weekly-pinned-posts')->mondays()->at('1:00');
-        $schedule->command('klele:parse-rss-feeds')->hourly();
+        $schedule->command('klele:parse-rss-feeds')->hourlyAt('23');
         $schedule->command('klele:reset-pinned-posts')->dailyAt('2:00');
         $schedule->command('klele:notify-new-activity')->everyThirtyMinutes()->environments(['production']);
     }
