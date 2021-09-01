@@ -31,7 +31,7 @@ class CommentResource extends JsonResource
 
                 return null;
             }),
-            'locked_at' => $this->locked_at,
+            'lockedAt' => $this->locked_at,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
             'deletedAt' => $this->deleted_at,
