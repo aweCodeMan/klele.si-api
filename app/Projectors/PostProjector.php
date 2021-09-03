@@ -68,7 +68,7 @@ class PostProjector extends Projector
 
         Markdown::where('uuid', $event->aggregateRootUuid())->update([
             'markdown' => $event->data->markdown,
-            'html' => (new \Parsedown())->setSafeMode(true)->text($event->data->markdown),
+            'html' => $this->parseMarkdown($event->data->markdown),
         ]);
     }
 
