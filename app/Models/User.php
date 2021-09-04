@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -61,5 +62,22 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordLinkNotification($token));
+    }
+
+    public function markNotificationAsRead($id)
+    {
+        $notification = $this->notifications()->where('id', $id)->firstOrFail();
+        $notification->markAsRead();
+
+        DB::table('user_counters')->where('user_uuid', '=', $this->uuid)->decrement('number_of_unread_notifications');
+
+        return $notification->refresh();
+    }
+
+    public function markAllNotificationsAsRead()
+    {
+        $this->notifications()->whereNull('read_at')->update(['read_at' => now()]);
+
+        DB::table('user_counters')->where('user_uuid', '=', $this->uuid)->update(['number_of_unread_notifications' => 0]);
     }
 }

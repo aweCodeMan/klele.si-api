@@ -16,6 +16,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
@@ -68,6 +69,21 @@ class UserController extends Controller
         return new ProfileResource($request->user());
     }
 
+    public function stats(Request $request)
+    {
+        $stats = DB::table('user_counters')->where('user_uuid', '=', $request->user()->uuid)->first();
+
+        if ($stats) {
+            $stats = $stats->number_of_unread_notifications;
+        } else {
+            $stats = 0;
+        }
+
+        return response()->json(['data' => [
+            'numberOfUnreadNotifications' => (int)$stats,
+        ]]);
+    }
+
     public function verify(Request $request)
     {
         if (!$request->hasValidSignature()) {
@@ -89,7 +105,7 @@ class UserController extends Controller
             event(new Verified($user));
         }
 
-        return redirect(env('FRONTEND_URL'). '/profil');
+        return redirect(env('FRONTEND_URL') . '/profil');
     }
 
     public function reverify(Request $request)

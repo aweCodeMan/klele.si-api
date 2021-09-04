@@ -64,6 +64,14 @@ Route::name('votes.')->prefix('votes')->group(function() {
     });
 });
 
+Route::name('notifications.')->prefix('notifications')->group(function() {
+    Route::middleware(['auth'])->group(function (){
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::post('all-read', [\App\Http\Controllers\NotificationController::class, 'allRead'])->name('all-read');
+        Route::put('{uuid}', [\App\Http\Controllers\NotificationController::class, 'read'])->name('read');
+    });
+});
+
 Route::name('users.')->prefix('users')->group(function () {
     Route::post('/', [UserController::class, 'register'])->name('register');
     Route::post('/login', [UserController::class, 'login'])->name('login');
@@ -74,6 +82,8 @@ Route::name('users.')->prefix('users')->group(function () {
         Route::put('/', [UserController::class, 'update'])->name('update');
         Route::get('show', [UserController::class, 'show'])->name('show');
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
+
+        Route::get('stats', [UserController::class, 'stats'])->name('stats');
     });
 });
 
