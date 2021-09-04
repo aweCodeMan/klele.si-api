@@ -67,9 +67,12 @@ class User extends Authenticatable
     public function markNotificationAsRead($id)
     {
         $notification = $this->notifications()->where('id', $id)->firstOrFail();
-        $notification->markAsRead();
 
-        DB::table('user_counters')->where('user_uuid', '=', $this->uuid)->decrement('number_of_unread_notifications');
+        if (!$notification->read_at) {
+            $notification->markAsRead();
+
+            DB::table('user_counters')->where('user_uuid', '=', $this->uuid)->decrement('number_of_unread_notifications');
+        }
 
         return $notification->refresh();
     }

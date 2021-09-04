@@ -21,7 +21,7 @@ class NewReplyNotification extends Notification
      *
      * @return void
      */
-    public function __construct(public CommentCreated $event)
+    public function __construct(public CommentCreated $event, public Post $post)
     {
         //
     }
@@ -50,8 +50,8 @@ class NewReplyNotification extends Notification
         return [
             'comment_uuid' => $this->event->aggregateRootUuid(),
             'author' => (new AuthorResource($author))->toArray(null),
-            'type' => $this->event->data->parent_uuid ? Comment::class : Post::class,
-            'uuid' => $this->event->data->parent_uuid ?? $this->event->data->root_uuid,
+            'parent_type' => $this->event->data->parent_uuid ? Comment::class : Post::class,
+            'post_slug' => $this->post->slug,
         ];
     }
 }

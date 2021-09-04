@@ -18,8 +18,12 @@ class NotificationReactor extends Reactor implements ShouldQueue
         $notifiable = $this->getNotifiable($event);
 
         if ($notifiable) {
-            $notifiable->notify(new NewReplyNotification($event));
-            $this->incrementUnreadNotification($notifiable);
+            $post = Post::where('uuid', $event->data->root_uuid)->first();
+
+            if ($post) {
+                $notifiable->notify(new NewReplyNotification($event, $post));
+                $this->incrementUnreadNotification($notifiable);
+            }
         }
     }
 

@@ -17,12 +17,13 @@ class NotificationResource extends JsonResource
         return [
             'uuid' => $this->id,
             'notificationType' => $this->type,
-            'readAt' => $this->read_at,
             'data' => [
                 'author' => $this->data['author'],
-                'type' => $this->data['type'],
-                'uuid' => $this->data['uuid'],
+                'parentType' => $this->data['parent_type'],
+                'commentUuid' => $this->data['comment_uuid'],
+                'postSlug' => $this->data['post_slug'],
             ],
+            'readAt' => $this->read_at,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

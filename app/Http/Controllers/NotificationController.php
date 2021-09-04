@@ -25,7 +25,7 @@ class NotificationController extends Controller
     {
         $notification = $request->user()->markNotificationAsRead($uuid);
 
-        return new NotificationResource($notification->refresh());
+        return response(['data' => new NotificationResource($notification->refresh())]) ;
     }
 
     public function allRead(Request $request)

@@ -51,8 +51,6 @@ class NotificationTest extends TestCase
         $response = $this->actingAs($post->author)->get(route('users.stats'))->assertStatus(200);
         $this->assertSame(3, $response->json('data.numberOfUnreadNotifications'));
 
-
-
         $notification = $post->author->notifications->first();
         $response = $this->actingAs($post->author)->put(route('notifications.read', ['uuid' => $notification->id]), [])->assertStatus(200);
         $response = $this->actingAs($post->author)->get(route('users.stats'))->assertStatus(200);
@@ -91,11 +89,12 @@ class NotificationTest extends TestCase
     /** @test */
     public function it_returns_a_list_of_notifications()
     {
-        $comment = Comment::factory()->make();
+        $post = Post::factory()->markdownPost()->create();
+        $comment = Comment::factory()->make(['root_uuid' => $post->uuid]);
         $user = User::factory()->create();
 
-        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, ''))));
-        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, ''))));
+        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, '')), $post));
+        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, '')), $post));
 
         $response = $this->actingAs($user)->get(route('notifications.index'))->assertStatus(200);
 
@@ -105,10 +104,11 @@ class NotificationTest extends TestCase
     /** @test */
     public function it_set_as_read_a_notification()
     {
-        $comment = Comment::factory()->make();
+        $post = Post::factory()->markdownPost()->create();
+        $comment = Comment::factory()->make(['root_uuid' => $post->uuid]);
         $user = User::factory()->create();
 
-        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, ''))));
+        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, '')), $post));
 
         $notification = $user->notifications->first();
 
@@ -122,11 +122,12 @@ class NotificationTest extends TestCase
     /** @test */
     public function it_set_all_notifications_as_read()
     {
-        $comment = Comment::factory()->make();
+        $post = Post::factory()->markdownPost()->create();
+        $comment = Comment::factory()->make(['root_uuid' => $post->uuid]);
         $user = User::factory()->create();
 
-        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, ''))));
-        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, ''))));
+        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, '')), $post));
+        $user->notify(new NewReplyNotification(new CommentCreated(new CommentCreatedData($user->uuid, $comment->root_uuid, $comment->parent_uuid, '')), $post));
 
         $response = $this->actingAs($user)->post(route('notifications.all-read'), [])->assertStatus(200);
 
