@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0",
+        "doctrine/dbal": "^3.1",
         "erusev/parsedown": "^1.7",
         "ezyang/htmlpurifier": "^4.13",
         "fideloper/proxy": "^4.4",
