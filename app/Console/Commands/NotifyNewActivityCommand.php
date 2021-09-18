@@ -43,13 +43,15 @@ class NotifyNewActivityCommand extends Command
      */
     public function handle()
     {
+        $systemUser = User::where('email', 'info@klele.si')->first();
         $time = now()->subMinutes(30);
 
         //  Check users
         $users = User::where('created_at', '>=', $time)->count();
 
         //  Check posts
-        $posts = Post::where('created_at', '>=', $time)->count();
+        $systemPosts = Post::where('created_at', '>=', $time)->where('author_uuid', $systemUser->uuid)->count();
+        $posts = Post::where('created_at', '>=', $time)->where('author_uuid', '!=', $systemUser->uuid)->count();
 
         //  Check comments
         $comments = Comment::where('created_at', '>=', $time)->count();
@@ -60,6 +62,7 @@ class NotifyNewActivityCommand extends Command
         $data = [
             'users' => $users,
             'posts' => $posts,
+            'system_posts' => $systemPosts,
             'comments' => $comments,
             'votes' => $votes,
         ];
