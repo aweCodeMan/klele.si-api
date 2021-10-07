@@ -71,6 +71,11 @@ class ParseRSSFeedsCommand extends Command
                 'rss' => 'https://mariokranjec.dev/rss.xml',
                 'groupSlug' => 'programiranje',
                 'author' => $rssAuthor,
+            ],
+            [
+                'rss' => 'https://thedailycoach.substack.com/feed',
+                'groupSlug' => 'razno',
+                'author' => 'daily coach',
             ]
         ];
 
