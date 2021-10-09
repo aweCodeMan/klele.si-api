@@ -75,7 +75,7 @@ class ParseRSSFeedsCommand extends Command
             [
                 'rss' => 'https://thedailycoach.substack.com/feed',
                 'groupSlug' => 'razno',
-                'author' => 'daily coach',
+                'author' => $rssAuthor,
             ]
         ];
 
