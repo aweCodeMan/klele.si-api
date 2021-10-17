@@ -50,7 +50,7 @@ class NotifyNewActivityCommand extends Command
         $users = User::where('created_at', '>=', $time)->count();
 
         //  Check posts
-        $systemPosts = Post::where('created_at', '>=', $time)->where('author_uuid', $systemUser->uuid)->count();
+        // $systemPosts = Post::where('created_at', '>=', $time)->where('author_uuid', $systemUser->uuid)->count();
         $posts = Post::where('created_at', '>=', $time)->where('author_uuid', '!=', $systemUser->uuid)->count();
 
         //  Check comments
@@ -62,7 +62,7 @@ class NotifyNewActivityCommand extends Command
         $data = [
             'users' => $users,
             'posts' => $posts,
-            'system_posts' => $systemPosts,
+            //'system_posts' => $systemPosts,
             'comments' => $comments,
             'votes' => $votes,
         ];
