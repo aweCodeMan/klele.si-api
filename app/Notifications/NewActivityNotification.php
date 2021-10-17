@@ -44,7 +44,7 @@ class NewActivityNotification extends Notification
                     $content .= sprintf("prispevki: *%s*\n", $this->data['posts']);
                 }
 
-                if ($this->data['system_posts']) {
+                if (isset($this->data['system_posts']) && $this->data['system_posts']) {
                     $content .= sprintf("sistemski prispevki: *%s*\n", $this->data['system_posts']);
                 }
 
